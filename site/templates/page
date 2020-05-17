@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>{{ .PageTitle }}</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    {{if .Styles}}
+    {{range $val := .Styles}}
+    <link rel="stylesheet" type="text/css" href="{{ $val }}">
+    {{end}}
+    {{end}}
+</head>
+
+<body>
+    <p>{{ .BodyText }}</p>
+    <img src="https://i.picsum.photos/id/260/200/200.jpg" alt="dawg is missing">
+    {{if .BottomScripts}}
+    {{range $val := .BottomScripts}}
+    <script src="{{ $val }}"></script>
+    {{end}}
+    {{end}}
+</body>
+
+</html>
