@@ -11,15 +11,8 @@ import (
 )
 
 func main() {
-	site := config.Site{
-		Name: "site",
-		Options: config.Options{
-			HTTPPort:    "80",
-			StaticDir:   "statics",
-			TemplateDir: "templates",
-		},
-	}
-	config.Load(&site)
+	site, err := loadSiteConfig()
+	nilOrPanic(err)
 	cfg := golam.Config{
 		UsePort: site.Options.HTTPPort,
 		Routes: []golam.Route{
@@ -34,4 +27,23 @@ func main() {
 		},
 	}
 	golam.Run(chi.NewMux(), cfg)
+}
+
+func loadSiteConfig() (config.Site, error) {
+	site := config.Site{
+		Name: "site",
+		Options: config.Options{
+			HTTPPort:    "80",
+			StaticDir:   "statics",
+			TemplateDir: "templates",
+		},
+	}
+	err := config.Load(&site)
+	return site, err
+}
+
+func nilOrPanic(i interface{}) {
+	if nil != i {
+		panic(i)
+	}
 }

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"bytes"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -8,12 +9,13 @@ import (
 
 	"github.com/inquizarus/golam"
 	"inquizarus.dev/site/config"
+	"inquizarus.dev/site/templates"
 )
 
 // Data ...
 type Data struct {
 	PageTitle     string
-	BodyText      string
+	Content       string
 	BottomScripts []string
 	Styles        []string
 }
@@ -25,19 +27,22 @@ func MakeRootRoute(site config.Site) golam.Route {
 		Pattern: "/",
 		Get: func(res http.ResponseWriter, req *http.Request) {
 			defer req.Body.Close()
-			tfb, _ := ioutil.ReadFile(filepath.Join(site.Options.TemplateDir, "page"))
-			t, _ := template.New("root").Parse(string(tfb))
-			t.Execute(res, Data{
-				PageTitle: "/",
-				BodyText:  "Bacon ipsum dolor amet ground round swine pancetta tongue. Kielbasa andouille venison drumstick t-bone brisket ham ham hock salami.",
-				BottomScripts: []string{
-					"/js/main.js",
-				},
-				Styles: []string{
-					"https://unpkg.com/modern-css-reset/dist/reset.min.css",
-					"/style/main.css",
-				},
-			})
+
+			// Load the layout
+			layoutBytes, _ := ioutil.ReadFile(filepath.Join(site.Options.TemplateDir, templates.Layout.FilePath()))
+			layoutTemplate, _ := template.New(templates.Layout.Name()).Parse(string(layoutBytes))
+
+			// Load the page content
+			contentBytes, _ := ioutil.ReadFile(filepath.Join(site.Options.TemplateDir, "content", "root.html"))
+			contentTemplate, _ := template.New("content").Parse(string(contentBytes))
+			contentBuffer := bytes.NewBuffer([]byte{})
+			contentTemplate.Execute(contentBuffer, struct{ BodyText string }{""})
+
+			// Inject content into layout
+			layoutTemplate.New("content").Parse(string(contentBuffer.Bytes()))
+
+			// Render layout into the response
+			layoutTemplate.Execute(res, templates.Layout.Data())
 		},
 	}
 }

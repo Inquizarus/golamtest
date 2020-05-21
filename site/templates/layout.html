@@ -12,10 +12,12 @@
     {{end}}
     {{end}}
 </head>
-
 <body>
-    <p>{{ .BodyText }}</p>
-    <img src="https://i.picsum.photos/id/260/200/200.jpg" alt="dawg is missing">
+    <div class="site">
+        <div class="site__content">
+            {{ template "content" }}
+        </div>
+    </div>
     {{if .BottomScripts}}
     {{range $val := .BottomScripts}}
     <script src="{{ $val }}"></script>
